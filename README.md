@@ -3,6 +3,12 @@
 Small Angular form directive intended to handle submission and server validation errors,
 as well as boilerplate from reusing form field's layouts.
 
+## Install with bower
+
+```
+bower install cjForm
+```
+
 ## Usage
 
 ```

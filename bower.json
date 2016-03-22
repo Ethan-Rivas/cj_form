@@ -5,6 +5,7 @@
   "main": "./cj_form.js",
   "ignore": [],
   "dependencies": {
-    "angular": "^1.5.2"
+    "angular": "^1.5.2",
+    "cjForm": "^0.1.0"
   }
 }
