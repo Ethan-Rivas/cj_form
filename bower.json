@@ -1,0 +1,10 @@
+{
+  "name": "cjForm",
+  "version": "0.1.0",
+  "license": "MIT",
+  "main": "./cj_form.js",
+  "ignore": [],
+  "dependencies": {
+    "angular": "^1.5.2"
+  }
+}
