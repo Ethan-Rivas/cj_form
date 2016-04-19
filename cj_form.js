@@ -6,21 +6,13 @@
       template: '<form ng-submit="post()" novalidate ng-transclude></form>',
 
       scope: {
-        ngModel: '=',
         path: '@',
+        method: '@?',
+        wrapper: '@?',
+        ngModel: '=',
         errors: '=',
         onSuccess: '=?success',
         onValidationErrors: '=?validationErrors'
-      },
-
-      compile: function(tElement, tAttrs, transclude) {
-        if (!tAttrs.ngModel) {
-          tAttrs.$set('ngModel', 'model');
-        }
-
-        if (!tAttrs.errors) {
-          tAttrs.$set('errors', 'errors');
-        }
       },
 
       controller: function($scope, $element) {
@@ -30,7 +22,16 @@
         this.errorsName = $element.attr('errors');
 
         $scope.post = function() {
-          $http.post($scope.path, $scope.ngModel).then(function(response) {
+          var params = {};
+
+          // Wrap params if wrapper is present. Example: user[email]
+          if ($scope.wrapper) {
+            params[$scope.wrapper] = $scope.ngModel;
+          } else {
+            params = $scope.ngModel;
+          }
+
+          $http[$scope.method || 'post']($scope.path, params).then(function(response) {
             if ($scope.onSuccess) {
               $scope.onSuccess(response);
             }
@@ -52,26 +53,35 @@
       require: '^cjForm',
       replace: true,
       templateUrl: function(tElement, tAttrs) {
-        return tAttrs.template || tElement.parent().attr('cj-form-field-template');
+        var form = tElement.parent();
+        while (form.prop('tagName') !== 'CJ-FORM') {
+          form = form.parent();
+        }
+
+        return tAttrs.template || form.attr('cj-form-field-template');
       },
 
       scope: {
         label: '@',
         type:  '@',
-        value: '=',
-        errors: '='
+        model: '=',
+        attribute: '@',
+        errors: '=',
+        options: '=?'
       },
 
-      link: function(scope, element, attrs, cjForm) {
-        if (attrs.attribute) {
-          element.removeAttr('attribute');
-          element.attr({
-            value: [cjForm.modelName, attrs.attribute].join('.'),
-            errors: [cjForm.errorsName, attrs.attribute].join('.')
-          });
-
-          $compile(element)(scope.$parent);
+      compile: function(tElement, tAttrs, transclude) {
+        var form = tElement.parent();
+        while (form.prop('tagName') !== 'CJ-FORM') {
+          form = form.parent();
         }
+
+        var modelName  = form.attr('ng-model'),
+            errorsName = form.attr('errors'),
+            attrName   = tAttrs.attribute;
+
+        tAttrs.$set('model', modelName);
+        tAttrs.$set('errors', [errorsName, attrName].join('.'));
       }
     }
   });
